@@ -1,0 +1,32 @@
+[project]
+name = "rgveda-ft"
+version = "0.1.0"
+description = "Fine-tuning EmbeddingGemma-300m for Sanskrit text embeddings"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "sentence-transformers>=3.0.0",
+    "datasets>=2.19.0",
+    "huggingface-hub>=0.23.0",
+    "torch>=2.3.0",
+    "transformers>=4.40.0",
+    "accelerate>=0.30.0",
+    "numpy>=1.24.0",
+    "tqdm>=4.66.0",
+]
+
+[project.scripts]
+split-dataset = "app.cli:split_dataset"
+train-embeddings = "app.cli:train_embeddings"
+test-setup = "app.test_setup:main"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
