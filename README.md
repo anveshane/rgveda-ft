@@ -366,11 +366,10 @@ If you use this fine-tuned model, please cite:
 
 ```bibtex
 @article{embedding_gemma_2025,
-    title={EmbeddingGemma: Powerful and Lightweight Text Representations},
-    author={Schechter Vera, Henrique and others},
-    publisher={Google DeepMind},
-    year={2025},
-    url={https://arxiv.org/abs/2509.20354}
+    title={Sanskrit EmbeddingGemma},
+    author={Ganaraj Permunda & Bharat Shetty},
+    publisher={Indhic AI},
+    year={2025}
 }
 ```
 
