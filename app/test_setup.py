@@ -5,6 +5,13 @@ Run this to verify your environment is correctly configured before training.
 """
 
 import sys
+import os
+
+# Fix Windows console encoding for Unicode characters
+if sys.platform == 'win32':
+    os.system('chcp 65001 > nul')
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
 
 
 def test_imports():

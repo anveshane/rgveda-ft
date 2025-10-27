@@ -164,6 +164,24 @@ def train_embeddings():
         action="store_true",
         help="Make Hub model private"
     )
+    parser.add_argument(
+        "--resume-from-checkpoint",
+        type=str,
+        help="Resume training from a checkpoint (local path or HuggingFace model ID)"
+    )
+    parser.add_argument(
+        "--loss",
+        type=str,
+        choices=["mnrl", "triplet"],
+        default="mnrl",
+        help="Loss function: 'mnrl' (MultipleNegativesRankingLoss, faster) or 'triplet' (TripletLoss, traditional). Default: mnrl"
+    )
+    parser.add_argument(
+        "--gradient-accumulation-steps",
+        type=int,
+        default=1,
+        help="Gradient accumulation steps. Note: Not natively supported by sentence-transformers. Use larger --batch-size instead."
+    )
     
     args = parser.parse_args()
     
@@ -195,7 +213,10 @@ def train_embeddings():
             use_amp=not args.no_amp,
             push_to_hub=args.push_to_hub,
             hub_model_id=args.hub_model_id,
-            hub_private=args.hub_private
+            hub_private=args.hub_private,
+            resume_from_checkpoint=args.resume_from_checkpoint,
+            loss_function=args.loss,
+            gradient_accumulation_steps=args.gradient_accumulation_steps
         )
         
         print("\n" + "="*60)

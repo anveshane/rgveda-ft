@@ -117,7 +117,10 @@ def load_split_dataset(
     dataset_name: str = DEFAULT_DATASET_NAME
 ) -> DatasetDict:
     """
-    Load the already-split dataset from HuggingFace Hub.
+    Load the dataset from HuggingFace Hub.
+    
+    If the dataset already has train/test splits, use them directly.
+    Otherwise, raise an error with instructions.
     
     Args:
         dataset_name: HuggingFace dataset identifier
@@ -125,19 +128,27 @@ def load_split_dataset(
     Returns:
         DatasetDict with 'train' and 'test' splits
     """
-    print(f"Loading split dataset from {dataset_name}...")
+    print(f"Loading dataset from {dataset_name}...")
     dataset = load_dataset(dataset_name)
     
     # Check if the dataset has train/test splits
-    if 'train' not in dataset or 'test' not in dataset:
+    if 'train' in dataset and 'test' in dataset:
+        print(f"✓ Loaded dataset with {len(dataset['train'])} train and {len(dataset['test'])} test examples")
+        return dataset
+    elif 'train' in dataset and 'validation' in dataset:
+        # Some datasets use 'validation' instead of 'test'
+        print(f"✓ Loaded dataset with {len(dataset['train'])} train and {len(dataset['validation'])} validation examples")
+        print("  Note: Using 'validation' split as test set")
+        return DatasetDict({
+            'train': dataset['train'],
+            'test': dataset['validation']
+        })
+    else:
         raise ValueError(
             f"Dataset {dataset_name} does not have train/test splits. "
-            "Please run 'uv run split-dataset' first."
+            f"Available splits: {list(dataset.keys())}\n"
+            "Please run 'uv run split-dataset' to create splits, or use a dataset with existing splits."
         )
-    
-    print(f"✓ Loaded dataset with {len(dataset['train'])} train and {len(dataset['test'])} test examples")
-    
-    return dataset
 
 
 def get_triplet_columns(dataset: Dataset) -> Tuple[str, str, str]:
@@ -155,6 +166,8 @@ def get_triplet_columns(dataset: Dataset) -> Tuple[str, str, str]:
     # Common naming patterns
     if 'anchor' in columns and 'positive' in columns and 'negative' in columns:
         return 'anchor', 'positive', 'negative'
+    elif 'query' in columns and 'positive_verse' in columns and 'negative_verse' in columns:
+        return 'query', 'positive_verse', 'negative_verse'
     elif 'query' in columns and 'positive' in columns and 'negative' in columns:
         return 'query', 'positive', 'negative'
     elif 'sentence1' in columns and 'sentence2' in columns and 'sentence3' in columns:
@@ -162,7 +175,7 @@ def get_triplet_columns(dataset: Dataset) -> Tuple[str, str, str]:
     else:
         raise ValueError(
             f"Could not identify triplet columns. Available columns: {columns}\n"
-            "Expected patterns: (anchor, positive, negative) or (query, positive, negative)"
+            "Expected patterns: (anchor, positive, negative), (query, positive, negative), or (query, positive_verse, negative_verse)"
         )
 
 
